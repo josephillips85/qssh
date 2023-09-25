@@ -14,25 +14,14 @@ QuickSSH is a tool designed for IT professionals and developers who need to mana
 
 ## Getting Started
 
-To connect only use qssh Alias
+Is very easy to install and use.
 
-Commands
-  add
-      Add a new host to the configuration.
-      Options:
-          [user]@host Specify the user and host to connect.
-          -i Specify the path of the identity file.
-          -a Specify a alias to connect to remote server.
-          -p Specify the port of remote server.
-  remove
-      Remove a alias from the configuration.
-          Specify the alias of the host to remove.
-  list
-      List all hosts in the configuration.
-  version
-      Show version and quit.
+With Homebrew 
 
+<code>brew tap josephillips85/formulas
+brew install qssh</code>
 
+To see the command list just type qssh
 
 
 ## Contributing
