@@ -19,6 +19,7 @@
 #include <string.h>
 #include <unistd.h>
 #include "parser.h" 
+#include "autocomplete.h"
 #include <stdarg.h>
 #include <ctype.h>
 #define MAX_LINE_LENGTH 1024
@@ -31,7 +32,7 @@ struct Host {
     char identity[100];
     int port;
 };
-char qssh_version [3] = "1.0";
+char qssh_version [3] = "1.1";
 
 void initializeConfigFile() {
     FILE *configFile = fopen(getConfigpath(), "w");
@@ -46,15 +47,14 @@ void initializeConfigFile() {
 int isAliasDuplicate(const char *alias) {
     FILE *configFile = fopen(getConfigpath(), "r");
     if (configFile == NULL) {
-        printf("Error opening config file.\n");
-        return 0; // Assume not duplicate
+        return 0; 
     }
 
     char line[256];
     while (fgets(line, sizeof(line), configFile) != NULL) {
         if (strncmp(line, "Host ", 5) == 0) {
             char *foundAlias = line + 5; // Skip "Host "
-            foundAlias[strcspn(foundAlias, "\n")] = '\0'; // Remove newline
+            foundAlias[strcspn(foundAlias, "\n")] = '\0';
             if (strcmp(foundAlias, alias) == 0) {
                 fclose(configFile);
                 return 1; // Duplicated
@@ -106,8 +106,14 @@ void addHost(const char *alias, const char *host, const char *username, const ch
     if (port > 0 && port <= 65535) {
         fprintf(configFile, "    Port %d\n", port);
     }
-    
+
+// Force the use of keychain on MacOS if the user don;t have keychain is ignored.
+    #ifdef __APPLE__
+        fprintf(configFile,"    UseKeychain %s\n", "yes");
+    #endif
+
     fclose(configFile);
+    makeAutocomplete();
     printf("Added host: %s\n", alias);
 }
 }
@@ -155,7 +161,7 @@ void removeHost(const char *alias) {
         printf("Missing host or alias: %s\n",alias);
         return ; 
     }
-   
+    makeAutocomplete();
     printf("Removed host: %s\n", alias);
 }
 
@@ -235,7 +241,7 @@ const char *getConfigpath() {
 int spawnSSH(const char *fmt, ...) {
 
   
-    char sshCommand[512]; // Adjust the buffer
+    char sshCommand[512]; 
     va_list args;
     va_start(args, fmt);
     snprintf(sshCommand, sizeof(sshCommand), "ssh -F \"%s\" ", getConfigpath());
@@ -249,8 +255,9 @@ int spawnSSH(const char *fmt, ...) {
 
 
 
+
 int main(int argc, char *argv[]) {
-  
+
     if (argc < 2) {
         showOptions();
         return 1;
@@ -280,7 +287,7 @@ int main(int argc, char *argv[]) {
                 i++;
             } else if (host == NULL && user == NULL && strchr(argv[i], '@')) {
                 char *atChar = strchr(argv[i], '@');
-                *atChar = '\0';  // Replace "@" with null terminator to split user and host
+                *atChar = '\0';  
                 user = argv[i];
                 host = atChar + 1;
             } else if (host == NULL && user == NULL) {
@@ -326,7 +333,6 @@ int main(int argc, char *argv[]) {
         return 0;
 
     } else {
-        // Validate if exist before connect.
         int isDuplicate = isAliasDuplicate(argv[1]);
 
         if (!isDuplicate){
