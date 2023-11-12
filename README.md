@@ -12,6 +12,8 @@ QuickSSH is a tool designed for IT professionals and developers who need to mana
 
 - **SSH Configuration**: QuickSSH integrates with your existing SSH command.
 
+- **Autocomplete**: QuickSSH can integrate with some shells for auto complete commands.
+
 ## Getting Started
 
 To connect only use qssh Alias
