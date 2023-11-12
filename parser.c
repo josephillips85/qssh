@@ -26,7 +26,7 @@
 void generateGrid(const char* filename) {
     FILE* file = fopen(filename, "r");
     if (file == NULL) {
-        perror("Error opening file");
+        printf("No entries found.\n");
         return;
     }
 

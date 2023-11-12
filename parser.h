@@ -14,4 +14,4 @@ struct HostInfo {
 
 void generateGrid(const char* filename);
 
-#endif // PARSER_H
+#endif 
